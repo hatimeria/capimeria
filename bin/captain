@@ -1,0 +1,157 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'fileutils'
+
+multistage = true
+stages = ["dev", "prod"]
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [path]"
+
+  opts.on("-h", "--help", "Displays this help info") do
+    puts opts
+    exit 0
+  end
+
+  opts.on("-n", "--no-multistage", "Disabling multistages") do
+    multistage = false
+    stages = []
+  end
+  
+  opts.on("-s", "--stages RAW_STAGES", "Specify stages you would like to create --stages dev,prod (first stage is default one)") do |raw_stages|
+    stages = raw_stages.to_s.split(/,/)
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
+end
+
+if ARGV.empty?
+  abort "Please specify the directory, e.g. `#{File.basename($0)} .'"
+elsif !File.exists?(ARGV.first)
+  abort "`#{ARGV.first}' does not exist."
+elsif !File.directory?(ARGV.first)
+  abort "`#{ARGV.first}' is not a directory."
+elsif ARGV.length > 1
+  abort "Too many arguments; please specify only one directory."
+end
+
+def unindent(string)
+  indentation = string[/\A\s*/]
+  string.strip.gsub(/^#{indentation}/, "")
+end
+
+base = ARGV.shift
+is_magento = File.exists? File.join(base,'app/Mage.php')
+
+files = {}
+
+head = unindent(<<-FILE)
+  set :application, "application"
+  set :domain,      "hatimeria.com"
+  set :deploy_to,   "/home/www/\#{application}"
+  set :user,        "deployment"
+  set :use_sudo,    false
+  
+  ssh_options[:forward_agent] = true
+
+  set :repository,  "git@github.com:hatimeria/\#{application}.git"
+  set :scm,         :git
+  # Or: `accurev`, `bzr`, `cvs`, `darcs`, `subversion`, `mercurial`, `perforce`, `subversion` or `none`
+  set :deploy_via,  :remote_cache
+  set :copy_exclude, [".git"]
+
+  role :web,        domain                         # Your HTTP server, Apache/etc
+  role :app,        domain                         # This may be the same as your `Web` server
+  role :db,         domain, :primary => true       # This is where Rails migrations will run
+
+  set  :keep_releases,  3
+FILE
+
+if is_magento
+  config_path = 'app/etc'
+  
+  files["Capfile"] = unindent(<<-FILE)
+    load 'deploy' if respond_to?(:namespace) # cap2 differentiator
+    load Gem.find_files('magento.rb').last.to_s
+    load Gem.find_files('captain_magento.rb').last.to_s
+    load '#{config_path}/deploy'
+  FILE
+
+  files["#{config_path}/deploy.rb"] = ''
+else
+  symfony_version  = nil
+  symfony_version = symfony_version || ((File.directory? File.join(base, 'config')) ? 1 : 2)
+  symfony_app_path = 'app'
+  
+  if symfony_version == 2
+    config_path = "#{symfony_app_path}/config"
+    
+    files["Capfile"] = unindent(<<-FILE)
+        load 'deploy' if respond_to?(:namespace) # cap2 differentiator
+        Dir['vendor/bundles/*/*/recipes/*.rb'].each { |bundle| load(bundle) }
+        load Gem.find_files('symfony2.rb').last.to_s
+        load Gem.find_files('captain_symfony2.rb').last.to_s
+        load '#{symfony_app_path}/config/deploy'
+      FILE
+
+    files["#{config_path}/deploy.rb"] = unindent(<<-FILE)
+        set :app_path,    "#{symfony_app_path}"
+        set :model_manager, "doctrine"
+      FILE
+  else
+    config_path = "config"
+    
+    files["Capfile"] = unindent(<<-FILE)
+        load 'deploy' if respond_to?(:namespace) # cap2 differentiator
+        Dir['plugins/*/lib/recipes/*.rb'].each { |plugin| load(plugin) }
+        load Gem.find_files('symfony1.rb').last.to_s
+        load Gem.find_files('captain_symfony1.rb').last.to_s
+        load 'config/deploy'
+      FILE
+
+    files["#{config_path}/deploy.rb"] = ''
+  end
+end
+if multistage
+  stages.each do |stage|
+    files["#{config_path}/deploy/#{stage}.rb"] = unindent(<<-FILE)
+        set :deploy_to,   "/home/www/\#{application}/#{stage}"
+      FILE
+  end
+  multi = unindent(<<-FILE)
+    set :stages, %w(#{stages.join(' ')})
+    set :default_stage, "#{stages.first}"
+    set :stage_dir, "#{config_path}/deploy"
+
+    require 'capistrano/ext/multistage'
+    
+  FILE
+else
+  multi = ''
+end
+files["#{config_path}/deploy.rb"] = multi + "\n\n" + head + "\n\n" + files["#{config_path}/deploy.rb"]
+
+files.each do |file, content|
+  file = File.join(base, file)
+  if File.exists?(file)
+    warn "[skip] '#{file}' already exists"
+  elsif File.exists?(file.downcase)
+    warn "[skip] '#{file.downcase}' exists, which could conflict with `#{file}'"
+  else
+    unless File.exists?(File.dirname(file))
+      puts "[add] making directory '#{File.dirname(file)}'"
+      FileUtils.mkdir(File.dirname(file))
+    end
+    puts "[add] writing '#{file}'"
+    File.open(file, "w") { |f| f.write(content) }
+  end
+end
+
+puts "[done] Project was captained!"

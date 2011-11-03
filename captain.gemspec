@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
 
   spec.name = 'captain'
-  spec.version = '0.1.6'
+  spec.version = '0.1.7'
   spec.platform = Gem::Platform::RUBY
   spec.description = <<-DESC
     Hatimeria capistrano deployment.

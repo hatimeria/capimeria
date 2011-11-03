@@ -10,7 +10,7 @@ Capimeria
 
 ### Poprzez RubyGemsorg ###
 
-    sudo gem install capifony
+    sudo gem install capimeria
     
 ### Poprzez GitHub ###
 

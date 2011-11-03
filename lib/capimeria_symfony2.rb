@@ -24,7 +24,12 @@ namespace :deploy do
 end
 
 namespace :symfony do
-  # remove after nice user will deploy application not f-in root!!
+  namespace :vendors do
+      desc "Runs the bin/vendors script to update the vendors"
+      task :update do
+          run "cd #{latest_release} && #{php_bin} bin/vendors install"
+      end
+  end
   namespace :cache do
     desc "Clears project cache."
     task :clear do

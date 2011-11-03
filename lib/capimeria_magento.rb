@@ -1,4 +1,4 @@
-load Gem.find_files('captain.rb').last.to_s
+load Gem.find_files('capimeria.rb').last.to_s
 
 set :shared_files,        ["app/etc/local.xml", "index.php", ".htaccess"]
 

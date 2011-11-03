@@ -1,4 +1,4 @@
-load Gem.find_files('captain.rb').last.to_s
+load Gem.find_files('capimeria.rb').last.to_s
 
 # overwritting capistratno and capifony deployment procedures
 namespace :deploy do

@@ -1,0 +1,1 @@
+load Gem.find_files('capimeria.rb').last.to_s

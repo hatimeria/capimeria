@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
 
-  spec.name = 'captain'
+  spec.name = 'capimeria'
   spec.version = '0.1.7'
   spec.platform = Gem::Platform::RUBY
   spec.description = <<-DESC
@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.has_rdoc = false
 
   spec.bindir = "bin"
-  spec.executables << "captain"
+  spec.executables << "capimeria"
 
   spec.add_dependency 'capistrano', ">= 2.9.0"
   spec.add_dependency 'capistrano-ext', ">= 1.2.1"

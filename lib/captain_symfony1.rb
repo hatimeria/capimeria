@@ -1,1 +1,0 @@
-load Gem.find_files('captain.rb').last.to_s

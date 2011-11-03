@@ -80,7 +80,7 @@ if is_magento
   files["Capfile"] = unindent(<<-FILE)
     load 'deploy' if respond_to?(:namespace) # cap2 differentiator
     load Gem.find_files('magento.rb').last.to_s
-    load Gem.find_files('captain_magento.rb').last.to_s
+    load Gem.find_files('capimeria_magento.rb').last.to_s
     load '#{config_path}/deploy'
   FILE
 
@@ -97,7 +97,7 @@ else
         load 'deploy' if respond_to?(:namespace) # cap2 differentiator
         Dir['vendor/bundles/*/*/recipes/*.rb'].each { |bundle| load(bundle) }
         load Gem.find_files('symfony2.rb').last.to_s
-        load Gem.find_files('captain_symfony2.rb').last.to_s
+        load Gem.find_files('capimeria_symfony2.rb').last.to_s
         load '#{symfony_app_path}/config/deploy'
       FILE
 
@@ -112,7 +112,7 @@ else
         load 'deploy' if respond_to?(:namespace) # cap2 differentiator
         Dir['plugins/*/lib/recipes/*.rb'].each { |plugin| load(plugin) }
         load Gem.find_files('symfony1.rb').last.to_s
-        load Gem.find_files('captain_symfony1.rb').last.to_s
+        load Gem.find_files('capimeria_symfony1.rb').last.to_s
         load 'config/deploy'
       FILE
 
@@ -154,4 +154,4 @@ files.each do |file, content|
   end
 end
 
-puts "[done] Project was captained!"
+puts "[done] Project was capimariand!"

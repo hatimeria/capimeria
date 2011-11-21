@@ -45,6 +45,11 @@ Pliki ktore trzeba przygotowac dla projektu to deploy.rb oraz jesli uzywamy mult
 
 ### Dostepne opcje konfiguracyjne ###
 
+
+Ustawienie branch deploymentu:
+
+    set :branch, "devel"
+
 ## Deployment ##
 
 Jednorazowo wywolujemy komende po skonfigurowaniu:

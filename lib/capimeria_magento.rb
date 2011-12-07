@@ -1,6 +1,6 @@
 load Gem.find_files('capimeria.rb').last.to_s
 
-set :shared_files,        ["app/etc/local.xml", "index.php", ".htaccess"]
+set :shared_files,        ["app/etc/local.xml", "index.php", ".htaccess", "robots.txt"]
 
 namespace :loc do
   desc "Local clear cache"

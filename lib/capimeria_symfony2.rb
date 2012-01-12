@@ -1,5 +1,7 @@
 load Gem.find_files('capimeria.rb').last.to_s
 
+set :hatimeria_extjs, false
+
 # overwritting capistratno and capifony deployment procedures
 namespace :deploy do
   namespace :web do
@@ -24,6 +26,12 @@ namespace :deploy do
 end
 
 namespace :symfony do
+  namespace :assets do
+      desc "Updates assets version"
+      task :update_version do
+          run "sed -i 's/\\(assets_version:\\)\\(.*\\)$/\\1 #{latest_revision}/g' #{latest_release}/app/config/config.yml"
+      end
+  end
   namespace :vendors do
       desc "Runs the bin/vendors script to update the vendors"
       task :update do
@@ -42,4 +50,27 @@ namespace :symfony do
       run "chmod -R 777 #{latest_release}/#{cache_path}"
     end
   end
+  namespace :extjs do
+      desc "Install extjs library into ExtJSBundle"
+      task :install do
+        run "cd #{latest_release} && #{php_bin} #{symfony_console} hatimeria:extjs:install --env=#{symfony_env_prod}"
+      end
+      desc "Compile extjs classes"
+      task :compile do
+        run "cd #{latest_release} && #{php_bin} #{symfony_console} hatimeria:extjs:compile --env=#{symfony_env_prod}"
+      end
+  end
+end
+
+before "symfony:assets:install" do
+    if hatimeria_extjs
+        symfony.extjs.install
+    end
+end
+
+after "symfony:assets:install" do
+    if hatimeria_extjs
+        symfony.extjs.compile
+    end
+    symfony.assets.update_version
 end

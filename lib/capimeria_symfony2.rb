@@ -1,6 +1,6 @@
 load Gem.find_files('capimeria.rb').last.to_s
 
-set :hatimeria_extjs, false
+set :atimeria_extjs, false
 
 # overwritting capistratno and capifony deployment procedures
 namespace :deploy do
@@ -29,7 +29,7 @@ namespace :symfony do
   namespace :assets do
       desc "Updates assets version"
       task :update_version do
-          run "sed -i 's/\\(assets_version:\\)\\(.*\\)$/\\1 #{latest_revision}/g' #{latest_release}/app/config/config.yml"
+          run "sed -i 's/\\(assets_version:\\)\\(.*\\)$/\\1 #{real_revision}/g' #{latest_release}/app/config/config.yml"
       end
   end
   namespace :vendors do

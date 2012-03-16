@@ -105,6 +105,8 @@ else
         set :app_path,        "#{symfony_app_path}"
         set :model_manager,   "doctrine"
         set :update_vendors,  true
+        set :vendors_mode,    "hatimeria"
+        set :hatimeria_extjs, false
         
         set :shared_files,    ["app/config/custom.yml"]
         set :shared_children, [app_path + "/logs", web_path + "/media", "vendor", web_path + "/system"]

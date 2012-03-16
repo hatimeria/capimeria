@@ -33,9 +33,25 @@ namespace :symfony do
       end
   end
   namespace :vendors do
-      desc "Runs the bin/vendors script to update the vendors"
+      desc "Selects vendors script mode"
       task :update do
+          if !exists?("vendors_mode")
+            set :vendors_mode, "hatimeria"
+          end
+          vendors_mode.chomp
+          case vendors_mode
+            when "full" then full
+            when "hatimeria" then hatimeria
+            else p "None vendors mode selected"
+          end
+      end
+      desc "Runs the bin/vendors script to update fully vendors"
+      task :full do
           run "cd #{latest_release} && #{php_bin} bin/vendors install"
+      end
+      desc "Runs the bin/vendors script with hatimeria option"
+      task :hatimeria do
+          run "cd #{latest_release} && #{php_bin} bin/vendors install -h"
       end
   end
   namespace :cache do

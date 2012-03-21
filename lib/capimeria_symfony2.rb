@@ -35,9 +35,9 @@ namespace :symfony do
   namespace :vendors do
       desc "Selects vendors script mode"
       task :update do
-          #if !exists?("vendors_mode")
-          #  set :vendors_mode, "hatimeria"
-          #end
+          if !exists?("vendors_mode")
+            set :vendors_mode, "hatimeria"
+          end
           vendors_mode.chomp
           case vendors_mode
             when "full" then full
